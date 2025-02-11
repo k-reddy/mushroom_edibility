@@ -1,3 +1,4 @@
 .ipynb_checkpoints
 .mushroomvenv
-mushrooms.csv.DS_Store
+mushrooms.csv
+.DS_Store
