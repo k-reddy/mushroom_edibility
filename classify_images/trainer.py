@@ -44,18 +44,14 @@ class MushroomTrainer:
             print(f"Epoch Train Loss: {train_loss:.4f} (took {train_time:.2f}s)")
             print(f"Epoch Val Loss: {val_loss:.4f} (took {val_time:.2f}s)")
 
-            scheduler_start = time.perf_counter()
             self.learning_rate_scheduler.step()
-            scheduler_time = time.perf_counter() - scheduler_start
 
             save_start = time.perf_counter()
             self.save_model(epoch)
             save_time = time.perf_counter() - save_start
 
             epoch_time = time.perf_counter() - epoch_start
-            print(
-                f"Epoch completed in {epoch_time:.2f}s (Scheduler: {scheduler_time:.2f}s, Save: {save_time:.2f}s)"
-            )
+            print(f"Epoch completed in {epoch_time:.2f}s (Save: {save_time:.2f}s)")
             print("-" * 60)
 
         return epoch_train_losses, epoch_val_losses
