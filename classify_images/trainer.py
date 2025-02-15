@@ -63,10 +63,15 @@ class MushroomTrainer:
     def train_epoch(self):
         epoch_train_loss = 0
         total_batch_time = 0
+        total_data_time = 0
         forward_time = 0
         backward_time = 0
 
+        data_start = time.perf_counter()
         for batch_idx, (inputs, targets) in enumerate(self.train_dataloader):
+            data_time = time.perf_counter() - data_start
+            total_data_time += data_time
+
             batch_start = time.perf_counter()
             batch_train_loss, forward_time, backward_time = self.train_batch(
                 inputs, targets
@@ -79,10 +84,16 @@ class MushroomTrainer:
                 print(
                     f"Batch {batch_idx}: Loss={batch_train_loss:.4f}, Time={batch_time:.3f}s"
                 )
+                print(f"  Data loading: {data_time:.3f}s")
                 print(f"  Forward: {forward_time:.3f}s, Backward: {backward_time:.3f}s")
+
+            data_start = time.perf_counter()  # Start timing next data load
 
         avg_epoch_train_loss = epoch_train_loss / len(self.train_dataloader)
         print(f"Average batch time: {total_batch_time/len(self.train_dataloader):.3f}s")
+        print(
+            f"Average data loading time: {total_data_time/len(self.train_dataloader):.3f}s"
+        )
         return avg_epoch_train_loss
 
     def train_batch(self, inputs, targets):

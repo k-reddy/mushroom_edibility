@@ -34,9 +34,9 @@ test_time = time.perf_counter()
 print(f"Test dataset creation time: {test_time-val_time:.2f} seconds")
 
 print("creating dataloaders")
-train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=True)
-test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=True)
+train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=3)
+val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=True, num_workers=3)
+test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=True, num_workers=3)
 
 num_classes = len(set([data["genus"] for data in train_data]))
 shroom_classifier = MushroomClassifier(num_classes)
