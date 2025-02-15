@@ -7,42 +7,49 @@ from cnn import MushroomClassifier
 from trainer import MushroomTrainer
 import time
 
-# base_dir = kagglehub.dataset_download("maysee/mushrooms-classification-common-genuss-images")
-# print("Path to dataset files:", path)
-base_dir = "/Users/keerthireddy/.cache/kagglehub/datasets/maysee/mushrooms-classification-common-genuss-images/versions/1/Mushrooms"
-print("loading images")
-images = load_images(base_dir=base_dir)
-images = encode_labels(images=images)
-random.shuffle(images)
 
-print("splitting data")
-train_data, val_data, test_data = split_data(images)
-train_start_time = time.perf_counter()
-print("creating datasets")
+def create_data_lists(base_dir):
+    print("creating data lists")
+    images = load_images(base_dir=base_dir)
+    images = encode_labels(images=images)
+    random.shuffle(images)
 
-# make datasets and dataloaders
-train_dataset = MushroomDataset(train_data, num_augmentations=1)
-train_time = time.perf_counter()
-print(f"Train dataset creation time: {train_time-train_start_time:.2f} seconds")
+    # returns train data, val data, test data
+    return split_data(images)
 
-val_dataset = MushroomDataset(val_data, num_augmentations=0)
-val_time = time.perf_counter()
-print(f"Validation dataset creation time: {val_time-train_time:.2f} seconds")
 
-test_dataset = MushroomDataset(test_data, num_augmentations=0)
-test_time = time.perf_counter()
-print(f"Test dataset creation time: {test_time-val_time:.2f} seconds")
+def make_dataloader(data_list, num_augmentations=0):
+    start = time.perf_counter()
+    shroom_dataset = MushroomDataset(data_list, num_augmentations=num_augmentations)
+    print(f"Dataset creation time: {time.perf_counter()-start}")
+    return DataLoader(shroom_dataset, batch_size=32, shuffle=True, num_workers=3)
 
-print("creating dataloaders")
-train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=3)
-val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=True, num_workers=3)
-test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=True, num_workers=3)
 
-num_classes = len(set([data["genus"] for data in train_data]))
-shroom_classifier = MushroomClassifier(num_classes)
-shroom_trainer = MushroomTrainer(
-    shroom_classifier, train_dataloader, val_dataloader, test_dataloader, num_epochs=5
-)
+def main():
+    # BASE_DIR = kagglehub.dataset_download("maysee/mushrooms-classification-common-genuss-images")
+    # print("Path to dataset files:", path)
+    BASE_DIR = "/Users/keerthireddy/.cache/kagglehub/datasets/maysee/mushrooms-classification-common-genuss-images/versions/1/Mushrooms"
+    train_data, val_data, test_data = create_data_lists(BASE_DIR)
 
-print("training model")
-shroom_trainer.train_model()
+    # make dataloaders
+    train_dataloader = make_dataloader(train_data, num_augmentations=1)
+    val_dataloader = make_dataloader(val_data)
+    test_dataloader = make_dataloader(test_data)
+
+    num_classes = len({data["genus"] for data in train_data})
+
+    shroom_classifier = MushroomClassifier(num_classes)
+    shroom_trainer = MushroomTrainer(
+        shroom_classifier,
+        train_dataloader,
+        val_dataloader,
+        test_dataloader,
+        num_epochs=5,
+    )
+
+    print("training model")
+    shroom_trainer.train_model()
+
+
+if __name__ == "__main__":
+    main()
