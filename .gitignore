@@ -2,3 +2,6 @@
 .mushroomvenv
 mushrooms.csv
 .DS_Store
+classify_images/models
+classify_images/__pycache__
+__pycache__
