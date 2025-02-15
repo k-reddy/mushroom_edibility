@@ -9,7 +9,6 @@ import time
 
 
 def create_data_lists(base_dir):
-    print("creating data lists")
     images = load_images(base_dir=base_dir)
     images = encode_labels(images=images)
     random.shuffle(images)
@@ -28,14 +27,18 @@ def make_dataloader(data_list, num_augmentations=0):
 def main():
     # BASE_DIR = kagglehub.dataset_download("maysee/mushrooms-classification-common-genuss-images")
     # print("Path to dataset files:", path)
-    BASE_DIR = "/Users/keerthireddy/.cache/kagglehub/datasets/maysee/mushrooms-classification-common-genuss-images/versions/1/Mushrooms"
-    train_data, val_data, test_data = create_data_lists(BASE_DIR)
+    base_dir = "/Users/keerthireddy/.cache/kagglehub/datasets/maysee/mushrooms-classification-common-genuss-images/versions/1/Mushrooms"
 
+    print("creating data lists")
+    train_data, val_data, test_data = create_data_lists(base_dir)
+
+    print("creating dataloaders")
     # make dataloaders
     train_dataloader = make_dataloader(train_data, num_augmentations=1)
     val_dataloader = make_dataloader(val_data)
     test_dataloader = make_dataloader(test_data)
 
+    print("making neural net and trainer")
     num_classes = len({data["genus"] for data in train_data})
 
     shroom_classifier = MushroomClassifier(num_classes)
