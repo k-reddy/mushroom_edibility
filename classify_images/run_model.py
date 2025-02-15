@@ -17,11 +17,13 @@ def create_data_lists(base_dir):
     return split_data(images)
 
 
-def make_dataloader(data_list, num_augmentations=0):
+def make_dataloader(data_list, num_augmentations=0, num_workers=1):
     start = time.perf_counter()
     shroom_dataset = MushroomDataset(data_list, num_augmentations=num_augmentations)
     print(f"Dataset creation time: {time.perf_counter()-start}")
-    return DataLoader(shroom_dataset, batch_size=32, shuffle=True, num_workers=3)
+    return DataLoader(
+        shroom_dataset, batch_size=32, shuffle=True, num_workers=num_workers
+    )
 
 
 def main():
@@ -34,7 +36,7 @@ def main():
 
     print("creating dataloaders")
     # make dataloaders
-    train_dataloader = make_dataloader(train_data, num_augmentations=1)
+    train_dataloader = make_dataloader(train_data, num_augmentations=1, num_workers=3)
     val_dataloader = make_dataloader(val_data)
     test_dataloader = make_dataloader(test_data)
 
