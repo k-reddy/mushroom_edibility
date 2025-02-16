@@ -4,6 +4,7 @@ import torch.nn as nn
 from torch.optim import Adam
 from torch.optim.lr_scheduler import StepLR
 import time
+import gc
 
 
 class MushroomTrainer:
@@ -76,13 +77,16 @@ class MushroomTrainer:
             total_batch_time += batch_time
 
             epoch_train_loss += batch_train_loss
-            if batch_idx % 50 == 0:
+            if batch_idx % 10 == 0:
                 print(
                     f"Batch {batch_idx}: Loss={batch_train_loss:.4f}, Time={batch_time:.3f}s"
                 )
                 print(f"  Data loading: {data_time:.3f}s")
                 print(f"  Forward: {forward_time:.3f}s, Backward: {backward_time:.3f}s")
 
+            # memory cleanup
+            del inputs, targets
+            gc.collect()
             data_start = time.perf_counter()  # Start timing next data load
 
         avg_epoch_train_loss = epoch_train_loss / len(self.train_dataloader)
