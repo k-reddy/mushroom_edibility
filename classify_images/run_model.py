@@ -32,7 +32,7 @@ def main():
         train_data,
         val_dataloader,
         test_dataloader,
-        num_epochs=10,
+        num_epochs=15,
         seed=SEED,
     )
 

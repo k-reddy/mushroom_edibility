@@ -29,15 +29,15 @@ class MushroomTrainer:
 
         self.loss_fn = nn.CrossEntropyLoss()
         self.optimizer = Adam(self.model.parameters(), lr=0.005, weight_decay=1e-4)
-        self.learning_rate_scheduler = ReduceLROnPlateau(
-            self.optimizer,
-            mode="min",  # Reduce LR when monitored value stops decreasing
-            factor=0.7,
-            patience=3,
-            verbose=True,
-            min_lr=1e-6,
-        )
-        # self.learning_rate_scheduler = StepLR(self.optimizer, step_size=3, gamma=0.5)
+        # self.learning_rate_scheduler = ReduceLROnPlateau(
+        #     self.optimizer,
+        #     mode="min",  # Reduce LR when monitored value stops decreasing
+        #     factor=0.7,
+        #     patience=3,
+        #     verbose=True,
+        #     min_lr=1e-6,
+        # )
+        self.learning_rate_scheduler = StepLR(self.optimizer, step_size=2, gamma=0.7)
         self.save_dir = None
 
     def train_model(self):

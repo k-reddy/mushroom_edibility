@@ -64,24 +64,31 @@ class MushroomClassifier(nn.Module):
             ConvBlock(3, 32, stride=1), ConvBlock(32, 32, stride=2)
         )
 
-        self.block1 = ResBlock(32, 64, stride=2, dilation=2)
+        self.block1 = ResBlock(32, 64, stride=2)
         self.block2 = ResBlock(64, 128, stride=2, dilation=2)
+        self.dropout1 = nn.Dropout(0.2)
         self.block3 = ResBlock(128, 256, stride=2)
+        self.dropout2 = nn.Dropout(0.2)
 
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        # self.dropout = nn.Dropout(0.5)
-        self.fc = nn.Linear(256, num_classes)
+        self.max_pool = nn.AdaptiveMaxPool2d(1)
+        self.dropout3 = nn.Dropout(0.2)
+        self.fc = nn.Linear(256 * 2, num_classes)
 
     def forward(self, x):
         # Store intermediate results to avoid in-place operations
         out = self.initial(x)
         out = self.block1(out)
         out = self.block2(out)
+        out = self.dropout1(out)
         out = self.block3(out)
-
-        out = self.avg_pool(out)
-        out = torch.flatten(out, 1)
-        # out = self.dropout(out)
+        out = self.dropout2(out)
+        max_pooled = self.max_pool(out)
+        avg_pooled = self.avg_pool(out)
+        max_pooled = torch.flatten(max_pooled, 1)
+        avg_pooled = torch.flatten(avg_pooled, 1)
+        out = torch.cat([max_pooled, avg_pooled], dim=1)
+        out = self.dropout3(out)
         out = self.fc(out)
 
         return out
