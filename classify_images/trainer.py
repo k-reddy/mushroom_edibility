@@ -74,8 +74,8 @@ class MushroomTrainer:
                 f"Epoch Val Loss: {val_loss:.4f}, Accuracy: {val_accuracy:.2f} (took {val_time:.2f}s)"
             )
 
-            self.learning_rate_scheduler.step(val_loss)
-            # self.learning_rate_scheduler.step()
+            # self.learning_rate_scheduler.step(val_loss)
+            self.learning_rate_scheduler.step()
 
             save_start = time.perf_counter()
             self.save_model(epoch, epoch_train_losses, epoch_val_losses)
@@ -176,7 +176,8 @@ class MushroomTrainer:
             while os.path.exists(os.path.join(base_path, f"model_{i}")):
                 i += 1
             self.save_dir = os.path.join(base_path, f"model_{i}")
-        model_dir = self.save_dir + f"/epoch_{epoch}.pth"
+            os.makedirs(self.save_dir, exist_ok=True)
+        model_dir = os.path.join(self.save_dir, f"epoch_{epoch}.pth")
         print(f"saving model checkpoint at {model_dir}")
         checkpoint = {
             "epoch": epoch,
