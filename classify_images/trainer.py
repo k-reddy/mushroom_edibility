@@ -38,6 +38,7 @@ class MushroomTrainer:
             min_lr=1e-6,
         )
         # self.learning_rate_scheduler = StepLR(self.optimizer, step_size=3, gamma=0.5)
+        self.save_dir = None
 
     def train_model(self):
         start_time = time.perf_counter()
@@ -167,14 +168,16 @@ class MushroomTrainer:
         return avg_loss, accuracy
 
     def save_model(self, epoch, epoch_train_losses, epoch_val_losses):
-        base_path = "models/"
-        os.makedirs(base_path, exist_ok=True)
-        i = 0
-        while os.path.exists(os.path.join(base_path, f"model_{i}_epoch_{epoch}.pth")):
-            i += 1
-
-        model_path = os.path.join(base_path, f"model_{i}_epoch_{epoch}.pth")
-        print(f"saving model checkpoint at {model_path}")
+        # if we haven't yet assigned it a save path
+        if not self.save_dir:
+            base_path = "models/"
+            os.makedirs(base_path, exist_ok=True)
+            i = 0
+            while os.path.exists(os.path.join(base_path, f"model_{i}")):
+                i += 1
+            self.save_dir = os.path.join(base_path, f"model_{i}")
+        model_dir = self.save_dir + f"/epoch_{epoch}.pth"
+        print(f"saving model checkpoint at {model_dir}")
         checkpoint = {
             "epoch": epoch,
             "model_state_dict": self.model.state_dict(),
@@ -184,7 +187,7 @@ class MushroomTrainer:
             "val_losses": epoch_val_losses,
             "seed": self.seed,
         }
-        torch.save(checkpoint, model_path)
+        torch.save(checkpoint, model_dir)
 
     def load_checkpoint(self, checkpoint_path, seed):
         print(f"loading checkpoint {checkpoint_path}")
