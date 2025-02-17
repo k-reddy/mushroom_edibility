@@ -4,7 +4,7 @@ import random
 
 
 class MushroomDataset(Dataset):
-    def __init__(self, data_list, num_augmentations=1):
+    def __init__(self, data_list, num_augmentations=0):
         self.data_list = data_list  # Store original data
         self.num_augmentations = num_augmentations
         self.size = 150
@@ -42,6 +42,7 @@ class MushroomDataset(Dataset):
 
         if is_augmentation:
             num_transforms = random.choice([1, 2])
+            # num_transforms = 1
             aug_transform = transforms.Compose(
                 random.sample(self.augmentation_list, num_transforms)
             )

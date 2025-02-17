@@ -32,7 +32,7 @@ class ResBlock(nn.Module):
         self.conv1 = ConvBlock(
             in_channels, out_channels, stride=stride, dilation=dilation
         )
-        self.conv2 = ConvBlock(out_channels, out_channels, stride=1, dilation=dilation)
+        self.conv2 = ConvBlock(out_channels, out_channels, stride=1, dilation=1)
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_channels != out_channels:

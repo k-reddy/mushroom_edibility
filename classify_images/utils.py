@@ -1,7 +1,11 @@
 import os
+import random
+import time
 from PIL import Image
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from mushroom_dataset import MushroomDataset
+from torch.utils.data import DataLoader
 
 
 def load_images(base_dir, rgb_only=True):
@@ -23,6 +27,7 @@ def load_images(base_dir, rgb_only=True):
                     images.append({"genus": genus_folder, "image": img_copy})
             except Exception as e:
                 print(f"Skipping corrupted image {image_path}: {str(e)}")
+
     if rgb_only:
         images = [data for data in images if data["image"].mode == "RGB"]
     return images
@@ -60,3 +65,23 @@ def split_data(data_list, train_size=0.7, val_pct_of_remaining=0.5, random_state
     )
 
     return train, val, test
+
+
+def make_dataloader(data_list, num_augmentations=0, num_workers=1):
+    start = time.perf_counter()
+    shroom_dataset = MushroomDataset(data_list, num_augmentations=num_augmentations)
+    print(f"Dataset creation time: {time.perf_counter()-start}")
+    data_loader = DataLoader(
+        shroom_dataset, batch_size=32, shuffle=True, num_workers=num_workers
+    )
+    del data_list
+    return data_loader
+
+
+def create_data_lists(base_dir):
+    images = load_images(base_dir=base_dir)
+    images = encode_labels(images=images)
+    random.shuffle(images)
+
+    # returns train data, val data, test data
+    return split_data(images)

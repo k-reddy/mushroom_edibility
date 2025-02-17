@@ -1,34 +1,16 @@
 import kagglehub
-from torch.utils.data import DataLoader
 import random
-from utils import load_images, encode_labels, split_data
-from mushroom_dataset import MushroomDataset
+import torch
+from utils import create_data_lists, make_dataloader
 from cnn import MushroomClassifier
 from trainer import MushroomTrainer
-import time
-
-
-def create_data_lists(base_dir):
-    images = load_images(base_dir=base_dir)
-    images = encode_labels(images=images)
-    random.shuffle(images)
-
-    # returns train data, val data, test data
-    return split_data(images)
-
-
-def make_dataloader(data_list, num_augmentations=0, num_workers=1):
-    start = time.perf_counter()
-    shroom_dataset = MushroomDataset(data_list, num_augmentations=num_augmentations)
-    print(f"Dataset creation time: {time.perf_counter()-start}")
-    data_loader = DataLoader(
-        shroom_dataset, batch_size=32, shuffle=True, num_workers=num_workers
-    )
-    del data_list
-    return data_loader
 
 
 def main():
+    # important to keep seed same if you're loading datasets
+    SEED = 81
+    random.seed(SEED)
+    torch.manual_seed(SEED)
     # BASE_DIR = kagglehub.dataset_download("maysee/mushrooms-classification-common-genuss-images")
     # print("Path to dataset files:", path)
     base_dir = "/Users/keerthireddy/.cache/kagglehub/datasets/maysee/mushrooms-classification-common-genuss-images/versions/1/Mushrooms"
@@ -39,7 +21,6 @@ def main():
 
     print("creating dataloaders")
     # make dataloaders
-    train_dataloader = make_dataloader(train_data, num_augmentations=1)
     val_dataloader = make_dataloader(val_data)
     test_dataloader = make_dataloader(test_data)
 
@@ -48,12 +29,15 @@ def main():
     shroom_classifier = MushroomClassifier(num_classes)
     shroom_trainer = MushroomTrainer(
         shroom_classifier,
-        train_dataloader,
+        train_data,
         val_dataloader,
         test_dataloader,
-        num_epochs=5,
+        num_epochs=10,
+        seed=SEED,
     )
 
+    # if you want to load a checkpoint, do so here:
+    # shroom_trainer.load_checkpoint("./models/model_0_epoch_0.pth", seed=SEED)
     print("training model")
     shroom_trainer.train_model()
 
