@@ -236,5 +236,5 @@ class MushroomTrainer:
         self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         self.learning_rate_scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
 
-        # Return the epoch we stopped at
-        return checkpoint["epoch"]
+        # Return the checkpoint data
+        return checkpoint
