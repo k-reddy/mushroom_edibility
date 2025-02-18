@@ -85,9 +85,10 @@ class MushroomTrainer:
             print(f"Epoch completed in {epoch_time:.2f}s (Save: {save_time:.2f}s)")
             print("-" * 60)
         print(f"total training time: {(time.perf_counter()-start_time)//60}m")
-        print(f"Epoch Train Losses: {epoch_train_losses}")
-        print(f"Epoch Val Losses: {epoch_val_losses}")
-        print(f"Epoch Val Accuracies: {epoch_val_accuracies}")
+        for i, train_loss in enumerate(epoch_train_losses):
+            print(
+                f"Epoch {i}: train loss={train_loss:.2f}, val_loss={epoch_val_losses[i]:.2f}, val accuracy={epoch_val_accuracies[i]:.2f}"
+            )
         return epoch_train_losses, epoch_val_losses, epoch_val_accuracies
 
     def train_epoch(self):
