@@ -7,7 +7,7 @@ class MushroomDataset(Dataset):
     def __init__(self, data_list, num_augmentations=0):
         self.data_list = data_list  # Store original data
         self.num_augmentations = num_augmentations
-        self.size = 150
+        self.size = 256
 
         self.base_transform = transforms.Compose(
             [
