@@ -17,6 +17,7 @@ class MushroomTrainer:
         test_dataloader,
         num_epochs,
         seed,
+        labels,
     ):
         self.seed = seed
         self.model = model
@@ -24,6 +25,7 @@ class MushroomTrainer:
         self.val_dataloader = val_dataloader
         self.test_dataloader = test_dataloader
         self.train_dataloader = None
+        self.labels = labels
 
         self.num_epochs = num_epochs
 
@@ -219,6 +221,7 @@ class MushroomTrainer:
             "val_accuracies": epoch_val_accuracies,
             "val_top3_accuracies": epoch_val_top3_accuracies,
             "seed": self.seed,
+            "labels": self.labels,
         }
         torch.save(checkpoint, model_dir)
 

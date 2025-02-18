@@ -40,7 +40,7 @@ def encode_labels(images):
 
     for data in images:
         data["encoded_genus"] = label_encoder.transform([data["genus"]])[0]
-    return images
+    return images, label_encoder.classes_
 
 
 def split_data(data_list, train_size=0.7, val_pct_of_remaining=0.5, random_state=42):
@@ -80,8 +80,8 @@ def make_dataloader(data_list, num_augmentations=0, num_workers=1):
 
 def create_data_lists(base_dir):
     images = load_images(base_dir=base_dir)
-    images = encode_labels(images=images)
+    images, labels = encode_labels(images=images)
     random.shuffle(images)
 
-    # returns train data, val data, test data
-    return split_data(images)
+    train_data, val_data, test_data = split_data(images)
+    return train_data, val_data, test_data, labels

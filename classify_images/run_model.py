@@ -16,7 +16,7 @@ def main():
     base_dir = "/Users/keerthireddy/.cache/kagglehub/datasets/maysee/mushrooms-classification-common-genuss-images/versions/1/Mushrooms"
 
     print("creating data lists")
-    train_data, val_data, test_data = create_data_lists(base_dir)
+    train_data, val_data, test_data, labels = create_data_lists(base_dir)
     num_classes = len({data["genus"] for data in train_data})
 
     print("creating dataloaders")
@@ -34,6 +34,7 @@ def main():
         test_dataloader,
         num_epochs=15,
         seed=SEED,
+        labels=labels,
     )
 
     # if you want to load a checkpoint, do so here:
