@@ -91,7 +91,7 @@ class MushroomTrainer:
         print(f"total training time: {(time.perf_counter()-start_time)//60}m")
         for i, train_loss in enumerate(epoch_train_losses):
             print(
-                f"Epoch {i}: train loss={train_loss:.2f}, val_loss={epoch_val_losses[i]:.2f}, val accuracy={epoch_val_accuracies[i]:.2f}, val top 3 accuracy={epoch[i]:.2f}"
+                f"Epoch {i}: train loss={train_loss:.2f}, val_loss={epoch_val_losses[i]:.2f}, val accuracy={epoch_val_accuracies[i]:.2f}, val top 3 accuracy={epoch_val_accuracies[i]:.2f}"
             )
         return (
             epoch_train_losses,
