@@ -45,6 +45,7 @@ class MushroomTrainer:
         epoch_train_losses = []
         epoch_val_losses = []
         epoch_val_accuracies = []
+        epoch_val_top3_accuracies = []
         for epoch in range(self.num_epochs):
             # make a new training dataloader with diff augmentations each epoch
             self.train_dataloader = make_dataloader(
@@ -62,16 +63,19 @@ class MushroomTrainer:
 
             # validate
             val_start = time.perf_counter()
-            val_loss, val_accuracy = self.run_model(self.val_dataloader)
+            val_loss, val_accuracy, val_top3_accuracy = self.run_model(
+                self.val_dataloader
+            )
             val_time = time.perf_counter() - val_start
             epoch_val_losses.append(val_loss)
             epoch_val_accuracies.append(val_accuracy)
+            epoch_val_top3_accuracies.append(val_top3_accuracy)
 
             # print results
             print(f"Epoch {epoch + 1}/{self.num_epochs}")
             print(f"Epoch Train Loss: {train_loss:.4f} (took {train_time:.2f}s)")
             print(
-                f"Epoch Val Loss: {val_loss:.4f}, Accuracy: {val_accuracy:.2f} (took {val_time:.2f}s)"
+                f"Epoch Val Loss: {val_loss:.4f}, Accuracy: {val_accuracy:.2f}, Top 3 Accuracy: {val_top3_accuracy:.2f} (took {val_time:.2f}s)"
             )
 
             # self.learning_rate_scheduler.step(val_loss)
@@ -87,9 +91,14 @@ class MushroomTrainer:
         print(f"total training time: {(time.perf_counter()-start_time)//60}m")
         for i, train_loss in enumerate(epoch_train_losses):
             print(
-                f"Epoch {i}: train loss={train_loss:.2f}, val_loss={epoch_val_losses[i]:.2f}, val accuracy={epoch_val_accuracies[i]:.2f}"
+                f"Epoch {i}: train loss={train_loss:.2f}, val_loss={epoch_val_losses[i]:.2f}, val accuracy={epoch_val_accuracies[i]:.2f}, val top 3 accuracy={epoch[i]:.2f}"
             )
-        return epoch_train_losses, epoch_val_losses, epoch_val_accuracies
+        return (
+            epoch_train_losses,
+            epoch_val_losses,
+            epoch_val_accuracies,
+            epoch_val_top3_accuracies,
+        )
 
     def train_epoch(self):
         epoch_train_loss = 0
@@ -149,6 +158,7 @@ class MushroomTrainer:
         self.model.eval()
         total_loss = 0
         correct = 0
+        correct_top_3 = 0
         total = 0
 
         with torch.no_grad():
@@ -160,13 +170,19 @@ class MushroomTrainer:
                 predicted = torch.argmax(preds, dim=1)
                 correct += (predicted == targets).sum().item()
 
+                _, top3_indices = torch.topk(preds, k=3, dim=1)
+                for i, target in enumerate(targets):
+                    if target in top3_indices[i]:
+                        correct_top_3 += 1
+
                 total += targets.size(0)
 
         avg_loss = total_loss / len(dataloader)
         accuracy = (correct / total) * 100
+        top3_accuracy = (correct_top_3 / total) * 100
 
         self.model.train()
-        return avg_loss, accuracy
+        return avg_loss, accuracy, top3_accuracy
 
     def save_model(self, epoch, epoch_train_losses, epoch_val_losses):
         # if we haven't yet assigned it a save path
