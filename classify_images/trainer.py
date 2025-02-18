@@ -82,7 +82,13 @@ class MushroomTrainer:
             self.learning_rate_scheduler.step()
 
             save_start = time.perf_counter()
-            self.save_model(epoch, epoch_train_losses, epoch_val_losses)
+            self.save_model(
+                epoch,
+                epoch_train_losses,
+                epoch_val_losses,
+                epoch_val_accuracies,
+                epoch_val_top3_accuracies,
+            )
             save_time = time.perf_counter() - save_start
 
             epoch_time = time.perf_counter() - epoch_start
@@ -184,7 +190,14 @@ class MushroomTrainer:
         self.model.train()
         return avg_loss, accuracy, top3_accuracy
 
-    def save_model(self, epoch, epoch_train_losses, epoch_val_losses):
+    def save_model(
+        self,
+        epoch,
+        epoch_train_losses,
+        epoch_val_losses,
+        epoch_val_accuracies,
+        epoch_val_top3_accuracies,
+    ):
         # if we haven't yet assigned it a save path
         if not self.save_dir:
             base_path = "models/"
@@ -203,6 +216,8 @@ class MushroomTrainer:
             "scheduler_state_dict": self.learning_rate_scheduler.state_dict(),
             "train_losses": epoch_train_losses,
             "val_losses": epoch_val_losses,
+            "val_accuracies": epoch_val_accuracies,
+            "val_top3_accuracies": epoch_val_top3_accuracies,
             "seed": self.seed,
         }
         torch.save(checkpoint, model_dir)
