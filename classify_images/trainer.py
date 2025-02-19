@@ -1,7 +1,7 @@
 import torch
 import os
 import torch.nn as nn
-from torch.optim import Adam
+from torch.optim import Adam, SGD
 from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau
 import time
 import gc
@@ -30,7 +30,8 @@ class MushroomTrainer:
         self.num_epochs = num_epochs
 
         self.loss_fn = nn.CrossEntropyLoss()
-        self.optimizer = Adam(self.model.parameters(), lr=0.005, weight_decay=1e-4)
+        self.optimizer = SGD(self.model.parameters(), lr=0.1, momentum=0.9)
+        # self.optimizer = Adam(self.model.parameters(), lr=0.005, weight_decay=1e-4)
         # self.learning_rate_scheduler = ReduceLROnPlateau(
         #     self.optimizer,
         #     mode="min",  # Reduce LR when monitored value stops decreasing
@@ -39,7 +40,7 @@ class MushroomTrainer:
         #     verbose=True,
         #     min_lr=1e-6,
         # )
-        self.learning_rate_scheduler = StepLR(self.optimizer, step_size=2, gamma=0.7)
+        self.learning_rate_scheduler = StepLR(self.optimizer, step_size=5, gamma=0.1)
         self.save_dir = None
 
     def train_model(self):
